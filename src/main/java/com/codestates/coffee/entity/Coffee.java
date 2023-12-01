@@ -1,11 +1,14 @@
 package com.codestates.coffee.entity;
 
+import com.codestates.order.entity.OrderCoffee;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -39,10 +42,14 @@ public class Coffee {
     @Column(nullable = false, name = "LAST_MODIFIED_AT")
     private LocalDateTime modifiedAt = LocalDateTime.now();
 
+    @OneToMany(mappedBy = "coffee")
+    private List<OrderCoffee> orderCoffees = new ArrayList<>();
+
     // 커피 상태 추가
     public enum CoffeeStatus {
         COFFEE_FOR_SALE("판매중"),
-        COFFEE_SOLD_OUT("판매중지");
+        COFFEE_SOLD_OUT("판매중지"),
+        ;
 
         @Getter
         private String status;

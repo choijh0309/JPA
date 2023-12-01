@@ -1,5 +1,6 @@
 package com.codestates.order.service;
 
+import com.codestates.coffee.service.CoffeeService;
 import com.codestates.exception.BusinessLogicException;
 import com.codestates.exception.ExceptionCode;
 import com.codestates.member.service.MemberService;
@@ -17,11 +18,14 @@ import java.util.Optional;
 public class OrderService {
     private final MemberService memberService;
     private final OrderRepository orderRepository;
+    private final CoffeeService coffeeService;
 
     public OrderService(MemberService memberService,
-                        OrderRepository orderRepository) {
+                        OrderRepository orderRepository,
+                        CoffeeService coffeeService) {
         this.memberService = memberService;
         this.orderRepository = orderRepository;
+        this.coffeeService = coffeeService;
     }
 
     public Order createOrder(Order order) {
@@ -29,6 +33,14 @@ public class OrderService {
         memberService.findVerifiedMember(order.getMember().getMemberId());
 
         // TODO 커피가 존재하는지 조회하는 로직이 포함되어야 합니다.
+        order.getOrderCoffees().forEach(
+                orderCoffee -> coffeeService.findVerifiedCoffee(
+                        orderCoffee.getCoffee().getCoffeeId()));
+
+        order.getMember().getStamp().setStampCount(
+                order.getMember().getStamp().getStampCount() +
+                        order.getOrderCoffees().stream()
+                                .mapToInt(coffee -> coffee.getQuantity()).sum());
 
         return orderRepository.save(order);
     }

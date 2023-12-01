@@ -42,6 +42,10 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
 
+    @JoinColumn(name = "MEMBER_ID")
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private Stamp stamp;
+
     public Member(String email) {
         this.email = email;
     }
