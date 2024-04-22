@@ -15,16 +15,25 @@ import java.time.LocalDateTime;
 public class Stamp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long stampId;
+    private Long stampId;
 
     @Column(nullable = false)
     private int stampCount;
+
+    @OneToOne
+    @JoinColumn(name = "MEMBER_ID")
+    private Member member;
+
+    public void setMember(Member member) {
+        this.member = member;
+        if (member.getStamp() != this) {
+            member.setStamp(this);
+        }
+    }
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
     private LocalDateTime modifiedAt = LocalDateTime.now();
-
-
 }

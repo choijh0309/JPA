@@ -1,5 +1,6 @@
 package com.codestates.order.entity;
 
+import com.codestates.coffee.entity.Coffee;
 import com.codestates.member.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,8 +36,11 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
     private List<OrderCoffee> orderCoffees = new ArrayList<>();
 
-    public void addMember(Member member) {
+    public void setMember(Member member) {
         this.member = member;
+        if (!this.member.getOrders().contains(this)) {
+            this.member.getOrders().add(this);
+        }
     }
 
     public enum OrderStatus {

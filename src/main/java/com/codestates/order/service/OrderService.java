@@ -3,6 +3,7 @@ package com.codestates.order.service;
 import com.codestates.coffee.service.CoffeeService;
 import com.codestates.exception.BusinessLogicException;
 import com.codestates.exception.ExceptionCode;
+import com.codestates.member.entity.Member;
 import com.codestates.member.service.MemberService;
 import com.codestates.order.entity.Order;
 import com.codestates.order.repository.OrderRepository;
@@ -32,17 +33,27 @@ public class OrderService {
         // 회원이 존재하는지 확인
         memberService.findVerifiedMember(order.getMember().getMemberId());
 
-        // TODO 커피가 존재하는지 조회하는 로직이 포함되어야 합니다.
-        order.getOrderCoffees().forEach(
-                orderCoffee -> coffeeService.findVerifiedCoffee(
-                        orderCoffee.getCoffee().getCoffeeId()));
+        // 커피가 존재하는지 조회하는 로직이 포함되어야 합니다.
+        order.getOrderCoffees().stream()
+                .forEach(orderCoffee -> coffeeService.findVerifiedCoffee(orderCoffee.getCoffee().getCoffeeId()));
 
-        order.getMember().getStamp().setStampCount(
-                order.getMember().getStamp().getStampCount() +
-                        order.getOrderCoffees().stream()
-                                .mapToInt(coffee -> coffee.getQuantity()).sum());
+        Order responseOrder = orderRepository.save(order);
 
-        return orderRepository.save(order);
+        // 새롭게 추가될 스탬프 갯수 확인
+        int plusStamp = order.getOrderCoffees().stream()
+                .mapToInt(orderCofee -> orderCofee.getQuantity())
+                .sum();
+        //해당 유저의 스탬프 갯수(추가 이전의 가지고 있던 스탬프 갯수) 확인
+        Member findMember = memberService.findMember(order.getMember().getMemberId());
+
+        int currentStamp = findMember.getStamp().getStampCount();
+
+        // 두 값을 더해서 업데이트
+        findMember.getStamp().setStampCount(plusStamp + currentStamp);
+
+        memberService.updateMember(findMember);
+
+        return responseOrder;
     }
 
     // 메서드 추가
@@ -84,4 +95,6 @@ public class OrderService {
                         new BusinessLogicException(ExceptionCode.ORDER_NOT_FOUND));
         return findOrder;
     }
+
+
 }

@@ -42,14 +42,20 @@ public class Coffee {
     @Column(nullable = false, name = "LAST_MODIFIED_AT")
     private LocalDateTime modifiedAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "coffee")
+    @OneToMany(mappedBy = "coffee", cascade = CascadeType.PERSIST)
     private List<OrderCoffee> orderCoffees = new ArrayList<>();
+
+    public void setOrderCoffee(OrderCoffee orderCoffee) {
+        this.orderCoffees.add(orderCoffee);
+        if (orderCoffee.getCoffee() != this) {
+            orderCoffee.setCoffee(this);
+        }
+    }
 
     // 커피 상태 추가
     public enum CoffeeStatus {
         COFFEE_FOR_SALE("판매중"),
-        COFFEE_SOLD_OUT("판매중지"),
-        ;
+        COFFEE_SOLD_OUT("판매중지");
 
         @Getter
         private String status;
@@ -57,5 +63,7 @@ public class Coffee {
         CoffeeStatus(String status) {
             this.status = status;
         }
+
+
     }
 }

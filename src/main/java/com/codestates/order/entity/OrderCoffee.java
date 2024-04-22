@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,7 +15,10 @@ import javax.persistence.*;
 public class OrderCoffee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long orderCoffeeId;
+    private Long orderCoffeeId;
+
+    @Column(nullable = false)
+    private int quantity;
 
     @ManyToOne
     @JoinColumn(name = "ORDER_ID")
@@ -24,6 +28,17 @@ public class OrderCoffee {
     @JoinColumn(name = "COFFEE_ID")
     private Coffee coffee;
 
-    @Column(nullable = false)
-    private int quantity;
+    public void setOrder(Order order) {
+        this.order = order;
+        if (!this.order.getOrderCoffees().contains(this)) { // 이 this는 OrderCoffee 즉, 클래스 자기 자신 지칭
+            this.order.getOrderCoffees().add(this);
+        }
+    }
+
+    public void setCoffee(Coffee coffee) {
+        this.coffee = coffee;
+        if (!this.coffee.getOrderCoffees().contains(this)) {
+            this.coffee.getOrderCoffees().add(this);
+        }
+    }
 }
